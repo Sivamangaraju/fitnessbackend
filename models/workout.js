@@ -5,40 +5,49 @@ const WorkOutSchema= new mongoose.Schema(
 {
     user:
     {
-        type:mongoose.Schema.Types.ObjectId,
+        type:mongoose.Schema.Types.ObjectId,  
         ref:"RegisterDetails",
         required:true
     },
-    category:
-    {
-        type:String,
-        rewuired:true   
+    userId:{
+        type:String
     },
-    WorkoutName:
+    exercise:
     {
         type:String,
-        required:true,
-        unique:true
+    },
+    category:{
+        type:String
     },
     sets:
     {
-        type:Number
+        type:Number,
+        default:0
     },
     reps:
     {
-        type:Number
+        type:Number,
+        default:0
     },
     weight:
     {
-        type:Number
+        type:Number,
+        default:0
     },
     duration:
     {
-        type:Number
+        type:Number,
+        default:0
     },
-    coloriesBurned:
+    speed:
     {
-        type:Number
+        type:Number,
+        default:0
+    },
+    caloriesBurned:
+    {
+        type:Number,
+        default:0
 
     },
     date:

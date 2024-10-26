@@ -19,15 +19,19 @@ app.use(cors());
 app.use(express.json());
 
 // OR, Enable CORS for specific origin (your frontend)
-app.use(cors({
-  origin: 'http://127.0.0.1:5173', // Your frontend origin (Vite's default port)
-  methods: ['GET', 'POST','PUT',"DELETE"], // Methods you allow
-  credentials: true // If you need to send cookies or authorization headers
-}));
 
-// app.get('',async(req,res)=>{
-//     res.send("Home Page")
-// })
+const allowedOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // If you need to send cookies or authorization headers
+}));
 
 app.use('/api/v1/users',tasks)
 

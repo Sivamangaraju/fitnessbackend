@@ -53,10 +53,10 @@ const sendOTP= async(req,res)=>{
             console.log("OTP record updated");
         }
         const result= await sendVerification({email:email,otp:otp});
-        console.log(result)
+        //console.log(result)
         if(result)
         {
-            return res.status(StatusCodes.CREATED).json({success:true,message:"Email Sent Successfully",otp});
+            return res.status(StatusCodes.CREATED).json({success:true,message:"Email Sent Successfully",otp,email:user.email});
         }
         else
         {
@@ -73,16 +73,41 @@ const sendOTP= async(req,res)=>{
     }
 }
 
-//otp verifivation and password updation
-
-const otpVerification=async(req,res)=>
+//otp verifivation and 
+const otpVerification= async(req,res)=>
 {
-    const {email,otp,updatedPassword}=req.body
-    if(!email || !otp || !updatedPassword)
+  const {email,enteredOtp}=req.body
+  if(!email || !enteredOtp)
+  {
+    return res.status(StatusCodes.BAD_REQUEST).json({success:false, messsage:'email and otp is required'})
+  }
+  const user=await sendotp.findOne({email})
+  if(!user)
+  {
+    return res.status(StatusCodes.BAD_REQUEST).json({success:false,message:'User email data not found'})
+  }
+  if(user.otp===enteredOtp)
+  {
+    return res.status(StatusCodes.OK).json({success:true,email:user.email,enteredOtp})
+  }
+  else{
+    return res.status(StatusCodes.BAD_REQUEST).json({success:false,message:"Otp is invalid, please enter valid OTP"})
+  }
+
+}
+
+//password updation (API function password updation)
+
+const updatePassword=async(req,res)=>
+{
+    const {email,password,confirmPassword}=req.body
+    if(!password || !confirmPassword)
     {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-            message:"Email, OTP and Updated Password mandatory"
-        })
+        return res.status(StatusCodes.BAD_REQUEST).json({success:false,message:"password or confirmPassword is missing"})
+    }
+    if(!(password===confirmPassword))
+    {
+        return res.status(StatusCodes.BAD_REQUEST).json({success:false,message:"Password and ConfirmPassword values need to be same, check once"})
     }
     const user =await RegisterDetails.findOne({email}).exec()
     if(!user)
@@ -90,24 +115,12 @@ const otpVerification=async(req,res)=>
        return res.status(StatusCodes.BAD_REQUEST).json({success:false,message:"Invalid Credentials"})
 
     }
-    const getOtp=await sendotp.findOne({email}).exec()
-    if(!getOtp)
-    {
-       return res.status(StatusCodes.BAD_REQUEST).json({success:false,message:"Invalid Email"});
-    }
-    if(getOtp.otp===otp)
-    {
-        const saltRounds= 10;
-        // const hashedPassword= await bcrypt.hash(updatedPassword,saltRounds);
-        user.password=updatedPassword;
-        await user.save()
-        return res.status(StatusCodes.OK).json({success:true,message:"The password updated",user})
+    //const saltRounds= 10;
+    // const hashedPassword= await bcrypt.hash(updatedPassword,saltRounds);
+    user.password=password;
+    await user.save()
+    return res.status(StatusCodes.OK).json({success:true,message:"The password is updated",user:{email:user.email,id:user._id}})
 
-    }
-    else
-    {
-        return res.status(StatusCodes.BAD_REQUEST).json({success:false,message:"Incorrect OTP"})
-    }
 }
 
-module.exports={sendOTP,otpVerification}
+module.exports={sendOTP,otpVerification,updatePassword}

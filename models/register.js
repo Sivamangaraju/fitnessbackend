@@ -3,7 +3,7 @@ const bcrypt=require('bcryptjs');
 const jwt=require('jsonwebtoken')
 
 const RegisterSchema= mongoose.Schema({
-    fullname:{
+    userName:{
         type:String,
         required:[true,'Name is mandatory'],
         maxlength:[50, `full can't be more than 50 letters`]
@@ -36,7 +36,7 @@ RegisterSchema.pre('save', async function(next){
 RegisterSchema.methods.comparePassword = async function(passkey) 
 {
   const ismatch=await bcrypt.compare(passkey,this.password)
-  console.log(ismatch);
+  //console.log(ismatch);
   return ismatch; 
 }
 

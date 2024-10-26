@@ -1,0 +1,27 @@
+//mongodb+srv://PrashanthKumar:MongoFit@123@fitnest.n7qr4.mongodb.net/fitness-tracker?retryWrites=true&w=majority&appName=FitNest
+
+//Api development
+
+//{
+    "userName":"siva",
+    "email":"siva19241210@gmail.com",
+    "password":"sivamani"
+}
+
+--->Add WorkOut details Api
+    =>Save the data in to the DB
+    =>Total No Of Workouts Today
+    =>Average Calories burned on each Workouts
+    =>Calories Burned for whole day
+
+
+
+
+API implementation:
+
+// add percentage difference in API,
+//send streek data to the frontend
+// Delete Account API
+ -->duration in min
+ -->decimal points reduce to 2 or 3
+ --->shows days inplace of whole late
