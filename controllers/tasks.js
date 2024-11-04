@@ -2,6 +2,9 @@ const RegisterDetails=require('../models/register')
 const UserProfile=require('../models/profileData')
 const WorkoutDetails=require('../models/workout')
 const sendotp= require('../models/otpModel')
+const userWeightLog=require('../models/userWightLog')
+const whatsappMessage=require('../models/whatAppMessage')
+const streekData=require('../models/streekCount')
 const {StatusCodes, BAD_REQUEST} =require('http-status-codes')
 const jwr=require('jsonwebtoken');
 const {sendOTP}=require('../controllers/otpContoller')
@@ -26,6 +29,7 @@ const register= async(req,res)=>{
             userId:user._id,
             userName: user.userName,
             email: user.email,
+            userMobile:null,
             height: null,
             weight: null,
             dob: "2001-03-26",
@@ -73,6 +77,7 @@ const deleteAccount= async(req,res,next)=>
     try 
     {
         const {userId,email}=req.user
+        //Register Details
         const user= await RegisterDetails.findOne({_id:userId})
         if(!user)
         {
@@ -83,7 +88,7 @@ const deleteAccount= async(req,res,next)=>
             await user.deleteOne()
             console.log("Register Account Deleted")
         }
-        
+        //User Profile
         const profileData=await UserProfile.findOne({userId})
         if(!profileData)
             {
@@ -94,6 +99,7 @@ const deleteAccount= async(req,res,next)=>
                 await profileData.deleteOne()
                 console.log("Profile Data Deleted")
             }
+        //user WorkOut Details    
         const workoutData= await WorkoutDetails.find({userId}).exec()
         if(workoutData.length>0)
         {
@@ -104,7 +110,8 @@ const deleteAccount= async(req,res,next)=>
         {
             console.log("No Workout details found")
         }
-        
+
+        //User Otp Data
         const otpdata= await sendotp.findOneAndDelete({email})
         if(!otpdata)
         {
@@ -113,7 +120,40 @@ const deleteAccount= async(req,res,next)=>
         else{
             console.log("OTP record deleted successfully")
         }
-        return res.status(StatusCodes.OK).json({success: true, message:" Account Deleted Successfully "})
+
+        //user Weight Log Data
+        const weightLogData= await userWeightLog.find({userId}).exec()
+        if(weightLogData.length>0)
+            {
+                await userWeightLog.deleteMany({userId})
+                console.log("userWeightLogData Details data deleted")
+            }
+            else
+            {
+                console.log("No userWeightLogData details found")
+            }
+
+        //User WhatApp Data    
+        const whatsappData= await whatsappMessage.find({userId}).exec()
+        if(whatsappData.length>0)
+            {
+                await whatsappMessage.deleteMany({userId})
+                console.log("whatsappMessage data Details  deleted")
+            }
+            else
+            {
+                console.log("No whatsappMessage details found")
+            }
+        //User Streek Data    
+        const streek= await streekData.findOneAndDelete({userId})  
+        if(!streek)
+            {
+                console.log(" No streekData record present fot this user")
+            }
+            else{
+                console.log("streekData record deleted successfully")
+            }  
+    return res.status(StatusCodes.OK).json({success: true, message:" Account Deleted Successfully "})
 
         
     } catch (error) 

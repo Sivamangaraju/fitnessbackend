@@ -50,6 +50,7 @@ const updateProfileData=async(req,res)=>
         }
         userProfileData.user = userProfileData.user || userId;
         userProfileData.email=profileData.email?profileData.email:userProfileData.email,
+        userProfileData.userMobile=profileData.userMobile?profileData.userMobile:userProfileData.userMobile,
         userProfileData.height=profileData.height?profileData.height:userProfileData.height,
         userProfileData.weight=profileData.weight?profileData.weight:userProfileData.weight,
         userProfileData.dob=profileData.dob?profileData.dob:userProfileData.dob,

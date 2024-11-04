@@ -22,6 +22,10 @@ const Profile= new mongoose.Schema({
         unique:true
 
     },
+    userMobile:
+    {
+        type:String,
+    },
     height:
     {
         type:Number

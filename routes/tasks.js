@@ -7,7 +7,7 @@ const {otpVerification,sendOTP,updatePassword}=require('../controllers/otpContol
 
 const {getDataByKeyword}=require('../controllers/youtubeDataAPI')
 
-const {addWorkout,deleteuserWorkout,getWorkoutHistory,addWorkoutLog,removeSingleWorkout} =require('../controllers/addWorkout')
+const {addWorkout,getWorkoutHistory,addWorkoutLog,removeSingleWorkout,deleteMulWeightLog} =require('../controllers/addWorkout')
 const {todayWorkoutData,getUserDashboard}=require('../controllers/getDashboardDetails')
 
 const authMiddleware=require('../middlewares/auth');
@@ -40,10 +40,11 @@ router.route('/getProfileData/:userId').get(authMiddleware,getProfileData)
 router.route('/updateProfileData').put(authMiddleware,updateProfileData)
 
 router.route('/addWorkout').post(authMiddleware,addWorkout);
-router.route('/deleteWorkout/:workoutId').delete(authMiddleware,deleteuserWorkout)
+//router.route('/deleteWorkout/:workoutId').delete(authMiddleware,deleteuserWorkout)
 router.route('/getWorkoutHistory').get(authMiddleware,getWorkoutHistory)
 router.route('/addWorkoutLog').post(authMiddleware,addWorkoutLog)
 router.route('/deleteUserWorkout/:workout_id').delete(authMiddleware,removeSingleWorkout)
+router.route('/deleteWeightLog').delete(deleteMulWeightLog);
 
 router.route('/getDashboardDetails').get(authMiddleware,getUserDashboard)
 router.route('/todayWorkOutData').get(authMiddleware,todayWorkoutData)
@@ -51,7 +52,7 @@ router.route('/todayWorkOutData').get(authMiddleware,todayWorkoutData)
 //send reminder routes
 router.route('/sendRemainder').post(authMiddleware,scheduleModule)
 router.route('/getRemainders').get(authMiddleware,getTotalReminders)
-router.route('/modifyRemainder/:remainder_id').post(authMiddleware,modifyRemainder)
+router.route('/modifyRemainder/:remainderId').patch(authMiddleware,modifyRemainder)
 
 
 

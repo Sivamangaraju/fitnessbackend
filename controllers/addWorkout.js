@@ -110,7 +110,15 @@ const addWorkout = async (req, res, next) => {
         }
         const userBodyWeightDate= new Date()
         let userBodyWeightDateString=userBodyWeightDate.toISOString().split('T')[0]
-        let weightLog=await userWeightLog.findOne({userId:userId,date:userBodyWeightDateString})
+        const weightLog = await userWeightLog.findOne({
+            userId: userId,
+            $expr: {
+              $eq: [
+                { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                userBodyWeightDateString,
+              ],
+            },
+          });
         if(!weightLog)
         {
             const logcreation = await userWeightLog.create({userId:userId,userBodyWeight:userBodyWeight})
@@ -154,7 +162,7 @@ const addWorkout = async (req, res, next) => {
             {
                 setsTime=(sets*reps*repTime)/5
             }
-            console.log(`repTime:${repTime},setsTime:${setsTime},metValue:${metValue}`)
+            //console.log(`repTime:${repTime},setsTime:${setsTime},metValue:${metValue}`)
             if(metValues[exercise]?.["MachineExercise"])
             {
                 totalWeight=weight
@@ -298,14 +306,21 @@ const getWorkoutHistory=async(req,res)=>
         }
         let userWeightLogDataFormat=userWeightLogData.map((item)=>
         ({
-
+            _id:item._id,
             userId:item.userId,
             userBodyWeight:item.userBodyWeight,
             date:item.date.toISOString().split('T')[0]
 
         }))
         userWeightLogDataFormat.sort((a, b) => new Date(b.date) - new Date(a.date));
-
+        if(!(workoutData.length===userWeightLogDataFormat.length))
+        {
+            console.log(`The Workout History, the workout data and userweightLog in not Equal ${workoutData.length} and ${userWeightLogDataFormat.length}`)
+        }
+        else
+        {
+            console.log(`Both are equal,WorkOut history ${workoutData.length} and ${userWeightLogDataFormat.length}`)
+        }
         return res.status(StatusCodes.OK).json({success:true, workoutData,userWeightLogDataFormat})
 
 
@@ -316,13 +331,63 @@ const getWorkoutHistory=async(req,res)=>
     }
 }
 
+const deleteMulWeightLog= async(req,res)=>
+{
+    try
+    {
+        const {userId,deleteDate}=req.body
+        const date=new Date(deleteDate)
+        const logData=  await userWeightLog.findOne({userId:userId,
+            $expr:{
+                $eq: [
+                    { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                    deleteDate,
+                  ],
+                }
+        })
+        if(logData)
+        {
+            await userWeightLog.deleteMany({
+                $expr:{
+                    $eq: [
+                        { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                        deleteDate,
+                      ],
+                    },
+                    _id:{$ne:logData?._id}
+                
+            })
+            res.status(201).json({message:"UserWeightLog Data deleted SuccessFully"})
+        }
+        else
+        {
+            res.status(401).json({success:false,message:`UserWeightLog data not exists check given date ${deleteDate}`})
+        }
+        
+    } 
+    catch (error) 
+    {
+        res.status(502).json({success:false,message:"Error Occurs while deleting the UserWeightLog"})
+    }
+}
+
+
+
+
 const addWorkoutLog= async(req,res,next)=>
 {
     try
     {
         const {userId,userBodyWeight,date}=req.body
         let dateString=date.split('T')[0]
-        const weightLog= await userWeightLog.findOne({userId:userId,date:dateString})
+        const weightLog= await userWeightLog.findOne({userId:userId,
+            $expr:{
+                $eq: [
+                    { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                    dateString,
+                  ],
+                },
+            })
         if(weightLog)
         {
           return res.status(StatusCodes.BAD_REQUEST).json({success:false,message:"Data is available for given Data",weightLog})
@@ -359,4 +424,4 @@ const removeSingleWorkout= async(req,res)=>
     }
 }
 
-module.exports = { addWorkout ,deleteuserWorkout,getWorkoutHistory,addWorkoutLog,removeSingleWorkout};
+module.exports = { addWorkout ,getWorkoutHistory,addWorkoutLog,removeSingleWorkout,deleteMulWeightLog};
